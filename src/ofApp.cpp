@@ -23,7 +23,7 @@ void ofApp::setup(){
 void ofApp::update(){
     //swim the depth of field
     depthOfField.setFocalDistance(ofMap(sin(ofGetElapsedTimef()/4),-1,1, -300, 300));
-    depthOfField.setFocalRange(100); 
+    depthOfField.setFocalRange(100);
     for(int i = 0; i < particleNum; i++) {
         particles.at(i).update();
     }
