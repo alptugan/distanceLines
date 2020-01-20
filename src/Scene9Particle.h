@@ -22,7 +22,10 @@ public:
     int cId;
     float bounce;
     int totDist;
-    bool drawMesh;
+    ofParameter<bool> drawMesh;
+    
+    ofMesh meshPrimary;
+    ofMesh meshConnection;
     
     void setId(int _id) {
         cId = _id;
@@ -42,7 +45,7 @@ public:
         ymove = ofRandom(0.01,3);
         zmove = ofRandom(0.005, 3);
         
-        crad = ofRandom(3,6);
+        crad = ofRandom(2,4);
         totDist = ofRandom(10,200);
         
         drawMesh = true;

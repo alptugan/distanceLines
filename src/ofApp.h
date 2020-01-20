@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxDOF.h"
 #include "Scene9Particle.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
@@ -29,5 +30,11 @@ class ofApp : public ofBaseApp{
     ofxDOF depthOfField;
     ofEasyCam cam;
     ofFbo fbo;
-
+    
+    ofxPanel gui;
+    ofParameter<float> gFocalDist;
+    ofParameter<float> gFocalRange;
+    ofParameter<int> gBlurAmt;
+    bool isDebug;
 };
+

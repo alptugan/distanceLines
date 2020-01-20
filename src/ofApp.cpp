@@ -4,6 +4,18 @@
 void ofApp::setup(){
     glCreateShader(GL_GEOMETRY_SHADER);
     
+    ofLogToConsole();
+    ofxGuiSetFont( "../../../../../../assets/DIN.otf", 8 );
+    ofxGuiSetDefaultWidth( 300 );
+    ofxGuiSetFillColor(ofColor(255,204,0,200));
+    
+    string xmlSettingsPath = "settings.xml";
+    gui.setup( "Distance lines", xmlSettingsPath );
+    gui.setPosition(ofGetWidth() - 300,0);
+    gui.add(gFocalRange.set("Focal Range", 50, 0, 500));
+    gui.add(gFocalDist.set("Focal Distance", 150, -500, 500));
+    gui.add(gBlurAmt.set("Blur Amount", 1, 0, 20));
+    
     // Init dof
     depthOfField.setup(ofGetWidth(), ofGetHeight());
     
@@ -16,14 +28,21 @@ void ofApp::setup(){
         particles.at(i).setId(i);
     }
     
+    // Enable debug gui
+    isDebug = true;
+    
+    
     ofBackground(0, 0, 0);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     //swim the depth of field
-    depthOfField.setFocalDistance(ofMap(sin(ofGetElapsedTimef()/4),-1,1, -300, 300));
-    depthOfField.setFocalRange(100);
+    //depthOfField.setFocalDistance(ofMap(sin(ofGetElapsedTimef()/4),-1,1, -300, 300));
+    depthOfField.setFocalDistance(gFocalDist);
+    depthOfField.setFocalRange(gFocalRange);
+    depthOfField.setBlurAmount(gBlurAmt);
+    
     for(int i = 0; i < particleNum; i++) {
         particles.at(i).update();
     }
@@ -56,11 +75,18 @@ void ofApp::draw(){
     
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), 10, 20);
     
+    
+    if(isDebug) {
+        gui.draw();
+    }
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'd') {
+        isDebug = !isDebug;
+    }
 }
 
 //--------------------------------------------------------------
@@ -100,7 +126,7 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+    gui.setPosition(ofGetWidth() - 300,0);
 }
 
 //--------------------------------------------------------------
