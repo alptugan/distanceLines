@@ -5,6 +5,44 @@
 #include "Scene9Particle.h"
 #include "ofxGui.h"
 
+
+class triangleMeshes {
+public:
+    vector<glm::vec3> points;
+    ofMesh meshTriangles;
+    ofColor baseColor;
+    
+    void setup() {
+        meshTriangles.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+        baseColor = ofColor(255,255,255,10);
+    }
+    
+    void clear() {
+        meshTriangles.clear();
+        this->points.clear();
+    }
+    
+    void addTriangle(vector<glm::vec3> & points, ofColor cl) {
+        this->points = points;
+        
+        if(this->points.size() > 2)
+        {
+            meshTriangles.addColor(cl);
+            meshTriangles.addVertex(this->points[0]);
+            meshTriangles.addColor(cl);
+            meshTriangles.addVertex(this->points[1]);
+            meshTriangles.addColor(cl);
+            meshTriangles.addVertex(this->points[2]);
+        }
+    }
+    
+    void draw() {
+        
+        meshTriangles.draw();
+    }
+    
+};
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -27,6 +65,8 @@ class ofApp : public ofBaseApp{
     
     int particleNum;
     vector<Scene9Particle> particles;
+    triangleMeshes triangleMesh;
+    ofParameter<bool> gDrawConLine;
     ofxDOF depthOfField;
     ofEasyCam cam;
     ofFbo fbo;
@@ -35,6 +75,14 @@ class ofApp : public ofBaseApp{
     ofParameter<float> gFocalDist;
     ofParameter<float> gFocalRange;
     ofParameter<int> gBlurAmt;
+    ofParameter<int> totDist;
+    ofParameter<glm::vec3> gNoiseVals;
+    ofParameter<float> gSpeed;
+    ofParameter<bool> gRotateWorld;
+    ofParameter<int> gDrawMode;
     bool isDebug;
+    
+    ofMesh meshTriangles;
+    ofMesh meshConnection;
 };
 

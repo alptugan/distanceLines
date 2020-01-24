@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <Distance_lines>
-	<Focal_Range>240</Focal_Range>
-	<Focal_Distance>210</Focal_Distance>
-	<Blur_Amount>2</Blur_Amount>
+	<Focal_Range>2491.67</Focal_Range>
+	<Focal_Distance>-190</Focal_Distance>
+	<Blur_Amount>1</Blur_Amount>
+	<Draw_Line_Connections>1</Draw_Line_Connections>
+	<distance_Threshold>51</distance_Threshold>
+	<Noise_Multipliers>0.002, 0.00540136, 0.002</Noise_Multipliers>
+	<Rotate_World>1</Rotate_World>
+	<Animation_Speed>0.320008</Animation_Speed>
+	<Drawing_Mode>1</Drawing_Mode>
 </Distance_lines>

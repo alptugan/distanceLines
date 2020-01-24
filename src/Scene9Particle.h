@@ -13,42 +13,69 @@
 
 class Scene9Particle {
 public:
-    float x, y, z;
+    glm::vec3 pos;
     float radius;
     ofColor linecol, fillcol;
     float alph;
     float xmove, ymove, zmove;
     int crad;
     int cId;
-    float bounce;
-    int totDist;
-    ofParameter<bool> drawMesh;
+    int mode;
+    float mult;
+    bool isContacting;
+    glm::vec3 noiseVals;
     
-    ofMesh meshPrimary;
-    ofMesh meshConnection;
+    float sigma,r,b, bound,step,roff;
+    vector<float> uni;
+
+    
+    vector<glm::vec3> bros;
     
     void setId(int _id) {
         cId = _id;
-        bounce = true;
+        
     }
     
+    void resize() {
+        
+        
+    }
+    
+    
     Scene9Particle() {
-        x = ofRandom(appWinW);
-        y = ofRandom(appWinH);
-        z = ofRandom(-500, 500);
-        radius = ofRandom(100,110);
+        pos.x = ofRandom(0, appWinW);
+        pos.y = ofRandom(0, appWinH);
+        pos.z = ofRandom(0, 1000);
+        //radius = ofRandom(100,110);
         linecol = ofColor::white;
         fillcol = ofColor::white;
         alph = ofRandom(255);
         
-        xmove = ofRandom(0.01,3);
-        ymove = ofRandom(0.01,3);
-        zmove = ofRandom(0.005, 3);
+        mode = 0;
         
-        crad = ofRandom(2,4);
-        totDist = ofRandom(10,200);
+        xmove = ofRandom(0,3);
+        ymove = ofRandom(0,3);
+        zmove = ofRandom(0,3);
         
-        drawMesh = true;
+        crad = ofRandom(1,1);
+        
+        mult = 1;
+        ofSetSphereResolution(4);
+        
+        noiseVals = glm::vec3(0.001, 0.001, 0.001);
+        
+        uni.resize(3);
+        
+        uni[0] = ofRandom(-appWinW*0.5, appWinW*0.5);
+        uni[1] = ofRandom(-appWinH*0.5, appWinH*0.5);
+        uni[2] = ofRandom(-500, 500);
+        
+        sigma=10;
+        r=28;
+        b=(8/3);
+        step=0.003;
+        
+        //int a[5][2] = { {0,0}, {1,2}, {2,4}, {3,6},{4,8}};
     }
     
     
@@ -56,96 +83,79 @@ public:
     ~Scene9Particle() {}
     
     void update() {
-        x += xmove;
-        y += ymove;
-        z += zmove;
         
-        if(!bounce) {
-            if (x > (appWinW + radius)) {
-                x = 0 -radius;
-            }
+        
+        if(mode == 0) {
+            pos = glm::vec3(0,0,0);
+            /*pos.x +=(sigma*(pos.y-pos.x))*step;
+            pos.y +=((-pos.x*pos.z)+(r*pos.x)-pos.y)*step;
+            pos.z +=((pos.x*pos.y)-(b*pos.z))*step;*/
             
-            if (x < (0 - radius)) {
-                x = appWinW + radius;
-            }
+            pos.x = uni[0];
+            pos.y = uni[1];
+            pos.z = uni[2];
             
-            if (y > (appWinH + radius)) {
-                y = 0 - radius;
-            }
+            uni[0] += (sigma*(pos.y-pos.x))*step;
+            uni[1] += ((-pos.x*pos.z)+(r*pos.x)-pos.y)*step;
+            uni[2] += ((pos.x*pos.y)-(b*pos.z))*step;
+        
+            //line(x,y,z,uni[i][0],uni[i][1],uni[i][2]);
             
-            if (y < (0 - radius)) {
-                y = appWinH + radius;
-            }
+        }else if(mode == 1){
+            pos.x += xmove * mult;
+            pos.y += ymove * mult;
+            pos.z += zmove * mult;
             
-            if (z > 500) {
-                z = -500;
-            }
             
-            if (z < -500) {
-                y = 500;
-            }
-            
-        }else{
-            if (x > (appWinW + radius)) {
+            if (pos.x >= (appWinW * 0.5)) {
                 xmove = xmove * -1;
             }
             
-            if (x < (0 - radius)) {
+            if (pos.x <= -(appWinW * 0.5)) {
                 xmove = xmove * -1;
             }
             
-            if (y > (appWinH + radius)) {
+            if (pos.y >= (appWinH) * 0.5) {
                 ymove = ymove * -1;
             }
             
-            if (y < (0 - radius)) {
+            if (pos.y <= -appWinH * 0.5) {
                 ymove = ymove * -1;
             }
             
-            if (z > 500) {
+            if (pos.z >= 500) {
                 zmove = zmove * -1;
             }
             
-            if (z < -500) {
+            if (pos.z <= -500) {
                 zmove = zmove * -1;
             }
+        }else if(mode == 2) {
+            float t = ofGetElapsedTimef() * mult;
+            //t = cId;
+            
+            //glm::vec3(0.002), glm::vec3(0.00001, 0.00001, 0.00001), glm::vec3(20)
+            
+            pos.x = ofSignedNoise(noiseVals.x, 0, t) * 650;
+            pos.y = ofSignedNoise(0, noiseVals.y, t) * 500;
+            pos.z = ofSignedNoise(t, 0, noiseVals.z) * 500;
             
         }
         
     }
     
     
-    void draw(vector<Scene9Particle> & _particles) {
+    void draw(/*vector<Scene9Particle> & _particles*/) {
         
-        for(int i = 0; i < _particles.size(); i ++) {
-            if (i != cId) {
-                float dis = ofDist(x, y, z, _particles.at(i).x, _particles.at(i).y, _particles.at(i).z);
-                //float overlap = dis - radius - _particles.at(i).radius;
-                if (dis < totDist && !drawMesh) {
-                    ofSetColor(linecol, ofMap(dis,0,totDist,255,0));
-                    ofDrawLine(x,y,z,_particles.at(i).x,_particles.at(i).y,_particles.at(i).z);
-                }
-                
-                if(dis < totDist && drawMesh ){
-                    for(int j = 0; j < _particles.size(); j ++) {
-                        float dis2 = ofDist( _particles.at(j).x, _particles.at(j).y, _particles.at(j).z, _particles.at(i).x, _particles.at(i).y, _particles.at(i).z);
-                        
-                        if(dis2 < totDist - 100) {
-                            ofSetColor(linecol, ofMap(dis,0,totDist,255,0));
-                            ofDrawTriangle(x, y, z, _particles.at(i).x, _particles.at(i).y, _particles.at(i).z, _particles.at(j).x, _particles.at(j).y, _particles.at(j).z);
-                            ofSetColor(linecol, ofMap(dis,0,totDist,255,50));
-                            ofDrawLine(x,y,z, _particles.at(i).x,_particles.at(i).y,_particles.at(i).z);
-                        }
-                        
-                    }
-                }
-                
-            }
-        }
-        
-        ofSetColor(fillcol);
+
+        if(isContacting)
+            ofSetColor(linecol);
+        else
+            ofSetColor(fillcol);
         //ofDrawEllipse(x, y, z, crad, crad, crad);
-        ofDrawSphere(x, y, z, crad);
+        ofNoFill();
+        
+        ofDrawSphere(pos.x, pos.y, pos.z, crad);
     }
     
 };
